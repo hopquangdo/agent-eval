@@ -1,0 +1,21 @@
+# Runtime evaluation results: JSONL/Markdown output is generated per run.
+/output/*
+!/output/.gitkeep
+
+# Python caches and local tooling artifacts.
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# Local virtual environments and environment files.
+.venv/
+venv/
+env/
+.env
+.env.*
+!.env.example

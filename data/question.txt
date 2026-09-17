@@ -1,0 +1,107 @@
+Hôm nay có gì bất thường không?
+Tuần này làm được bao nhiêu?
+Tuần này có trạm nào xong không?
+Hôm nay có mấy trạm khởi công?
+Khu vực nào đang chậm nhất?
+Hợp đồng nào sắp hết hạn?
+Đang vướng bao nhiêu ?
+Tuần này vướng nào chưa gỡ được?
+Tháng này so tháng trước thế nào?
+Còn tồn đọng bao nhiêu tiền?
+Ba mảng đang chạy thế nào?
+Có hợp đồng nào mới ký không?
+Hợp đồng này còn mấy đối tượng chưa xong?
+Còn bao nhiêu đối tượng chưa khảo sát?
+Hợp đồng này đang tắc ở bước nào?
+Trạm(đối tượng) nào tuần này chuyển bước?
+Trạm(đối tượng) nào khởi công lâu mà không cập nhật?
+Trạm nào thiếu biên bản?
+Tỉnh nào trong hợp đồng chậm nhất?
+Hợp đồng này có kịp hạn không?
+Hợp đồng này bao giờ xong?
+So hai hợp đồng này với nhau
+Trạm(đối tượng) nào chưa phân công khảo sát?
+Trạm(đối tượng) nào bị vướng không làm tiếp được?
+Hợp đồng nào chưa ký mà đã làm rồi?
+Trạm(đối tượng) nào bị hủy, vì sao?
+Anh Vinh đang ôm mấy trạm đang vướng?
+Trạm BTS0123 đang ở bước nào?
+Trạm này thuộc hợp đồng nào?
+Trạm này ai làm?
+Trạm này ở đâu?
+Trạm này loại cột gì, cao bao nhiêu?
+Trạm này vướng gì?
+Trạm này bàn giao mặt bằng chưa?
+Vật tư trạm này về chưa?
+Trạm này còn thiếu biên bản gì?
+Trạm này làm được mấy hạng mục rồi?
+Trạm này có ảnh thi công chưa?
+Trạm này khảo sát ngày nào?
+Trạm nào đủ điều kiện mà chưa thanh toán?
+Trạm này còn thiếu gì để quyết toán?
+Trạm nào tồn lâu nhất?
+Biên bản nào đang chờ duyệt?
+Biên bản nào bị từ chối, vì sao?
+Trạm này ai duyệt biên bản?
+Trạm nào xong lâu mà chưa quyết toán?
+Trạm nào thiếu từ 2 điều kiện trở lên?
+Tháng này quyết toán được mấy trạm?
+Hợp đồng này còn tồn bao nhiêu tiền?
+Khu vực nào quá hạn quyết toán nhiều nhất?
+Hợp đồng này đã xuất biên bản nào rồi?
+Trạm nào có biên bản mà chưa cập nhật điều kiện?
+Nhà thầu Royal đang làm mấy trạm?
+Nhà thầu nào chậm nhất?
+Nhà thầu nào đang rảnh?
+Trạm nào chưa giao nhà thầu?
+Nhà thầu này còn tồn mấy trạm?
+Nhà thầu nào tồn nhiều nhất?
+Nhà thầu này làm ở tỉnh nào?
+Nhà thầu này ký hợp đồng thầu phụ chưa?
+Trạm này trước giao cho ai?
+Nhà thầu nào có trạm đang vướng?
+Trạm nào sản lượng bất thường?
+Hợp đồng nào vượt ngân sách?
+Hợp đồng này tiêu hết bao nhiêu %?
+Hợp đồng nào thừa, hợp đồng nào thiếu?
+Trạm nào chênh nhiều nhất?
+Tỉnh nào thừa, tỉnh nào thiếu?
+Bình quân mỗi trạm bao nhiêu tiền?
+Hệ số cảnh báo đang để bao nhiêu?
+Ai điều chỉnh sản lượng trạm này?
+Hợp đồng nào chưa quyết toán?
+Sao hợp đồng mới tạo đã báo vượt ngưỡng?
+Hôm nay ai báo sản lượng?
+Sản lượng tháng 8 bao nhiêu?
+Sản lượng hôm qua bao nhiêu?
+Hợp đồng này làm được bao nhiêu % rồi?
+Tuần này trạm nào báo nhiều nhất?
+Nhà thầu nào tuần này chưa báo gì?
+Trạm nào khảo sát xong mà chưa nhập sản lượng?
+Trạm này còn hạng mục nào chưa làm?
+Trạm này báo bao nhiêu tiền rồi?
+Ai sửa sản lượng trạm này?
+Hạng mục nào bị nghiệm thu không đạt?
+Vướng nào tôi phải xử lý?
+Vướng nào quá 30 ngày rồi?
+Vướng nào sắp tới hạn xử lý?
+Vướng nào gấp mà chưa ai nhận?
+Loại vướng nào nhiều nhất?
+Khu vực nào vướng nhiều nhất?
+Tháng này gỡ được mấy vướng?
+Vướng này xử lý tới đâu rồi?
+Khu vực này còn bao nhiêu việc chưa làm?
+Nguồn việc nào sắp hết?
+Kế hoạch với thực tế chênh bao nhiêu?
+Trung tâm nào làm được nhiều nhất?
+Chỗ nào báo sản lượng mà chưa lên doanh thu?
+Nguồn việc nào đang vướng nhiều nhất?
+Tôi đang được giao mấy trạm?
+Trạm nào tôi phải làm tuần này?
+Trạm nào của tôi bị chặn?
+Sản lượng tôi báo duyệt chưa?
+Tháng này tôi báo được bao nhiêu?
+Trạm này tôi còn thiếu hồ sơ gì?
+Hạng mục nào của tôi bị đánh không đạt?
+Vật tư trạm này về chưa?
+Trạm nào của tôi chưa quyết toán?
