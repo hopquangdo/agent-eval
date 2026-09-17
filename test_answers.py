@@ -34,9 +34,11 @@ def unwrap(payload: dict) -> dict:
     return data if isinstance(data, dict) else payload
 
 
-def ask_chat(base_url: str, question: str, timeout: float) -> tuple[str, float]:
+def ask_chat(
+    base_url: str, question: str, timeout: float, session_id: str | None = None
+) -> tuple[str, float]:
     started = time.perf_counter()
-    session_id = str(uuid.uuid4())
+    session_id = session_id or str(uuid.uuid4())
     response = requests.post(
         f"{base_url.rstrip('/')}/chat/stream",
         json={"message": question, "session_id": session_id},
@@ -94,6 +96,24 @@ def _consume_event(event_name: str, raw_data: str, token_parts: list[str]) -> No
         token_parts.append(content)
 
 
+def parse_conversations(path: Path) -> list[list[str]]:
+    """Đọc file input; các dòng liên tiếp (không cách nhau bởi dòng trống)
+    thuộc cùng một hội thoại (nhiều turn, giữ chung session_id)."""
+    conversations: list[list[str]] = []
+    current: list[str] = []
+    with path.open(encoding="utf-8-sig") as handle:
+        for raw_line in handle:
+            line = raw_line.strip()
+            if line:
+                current.append(line)
+            elif current:
+                conversations.append(current)
+                current = []
+    if current:
+        conversations.append(current)
+    return conversations
+
+
 def run_one(
     index: int,
     question: str,
@@ -101,6 +121,9 @@ def run_one(
     timestamp: str,
     base_url: str,
     timeout: float,
+    session_id: str | None = None,
+    conversation_id: int | None = None,
+    turn_index: int | None = None,
 ) -> dict:
     result = {
         "id": index,
@@ -108,8 +131,11 @@ def run_one(
         "timestamp": timestamp,
         "question": question,
     }
+    if conversation_id is not None:
+        result["conversation_id"] = conversation_id
+        result["turn_index"] = turn_index
     try:
-        answer, elapsed = ask_chat(base_url, question, timeout)
+        answer, elapsed = ask_chat(base_url, question, timeout, session_id=session_id)
         result.update({
                 "answer": answer,
             "status": "OK",
@@ -124,6 +150,36 @@ def run_one(
             "error": str(exc),
         })
     return result
+
+
+def run_conversation(
+    conversation_id: int,
+    turns: list[str],
+    start_index: int,
+    question_name: str,
+    timestamp: str,
+    base_url: str,
+    timeout: float,
+) -> list[dict]:
+    """Chạy tuần tự các turn trong một hội thoại, dùng chung session_id
+    để backend giữ ngữ cảnh qua các lượt (vd: 'trạm này', 'hợp đồng này')."""
+    session_id = str(uuid.uuid4())
+    results = []
+    for turn_offset, question in enumerate(turns):
+        results.append(
+            run_one(
+                start_index + turn_offset,
+                question,
+                question_name,
+                timestamp,
+                base_url,
+                timeout,
+                session_id=session_id,
+                conversation_id=conversation_id,
+                turn_index=turn_offset + 1,
+            )
+        )
+    return results
 
 
 def main() -> None:
@@ -142,19 +198,14 @@ def main() -> None:
         help="Thư mục chứa output; mặc định tạo một thư mục riêng cho mỗi lần chạy",
     )
     parser.add_argument("--out", type=Path, default=None, help="Tên file JSONL cũ, không khuyến nghị")
-    parser.add_argument("--limit", type=int, default=None)
+    parser.add_argument("--limit", type=int, default=None, help="Giới hạn số hội thoại chạy")
     parser.add_argument("--timeout", type=float, default=120.0)
     parser.add_argument("--workers", type=int, default=10)
     args = parser.parse_args()
 
     if args.workers < 1:
         parser.error("--workers phải lớn hơn hoặc bằng 1")
-    with args.input.open(encoding="utf-8-sig") as handle:
-        questions = [line.strip() for line in handle if line.strip()]
-    if args.limit is not None:
-        questions = questions[:args.limit]
 
-    worker_count = min(args.workers, len(questions)) if questions else 1
     question_name = re.sub(r"[^\w.-]+", "_", args.input.stem).strip("._") or "questions"
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
     if args.out:
@@ -167,44 +218,69 @@ def main() -> None:
         jsonl_path = output_dir / f"result-{question_name}.jsonl"
     markdown_path = output_dir / f"result-{question_name}.md"
 
-    print(f"Chạy {len(questions)} câu hỏi với {worker_count} luồng...")
-    results: list[dict] = [{} for _ in questions]
+    conversations = parse_conversations(args.input)
+    if args.limit is not None:
+        conversations = conversations[: args.limit]
+    worker_count = min(args.workers, len(conversations)) if conversations else 1
+    total_turns = sum(len(turns) for turns in conversations)
+    multi_turn = any(len(turns) > 1 for turns in conversations)
+    if multi_turn:
+        print(f"Phát hiện hội thoại nhiều lượt. Chạy {len(conversations)} hội thoại ({total_turns} lượt hỏi) với {worker_count} luồng...")
+    else:
+        print(f"Chạy {total_turns} câu hỏi với {worker_count} luồng...")
+
+    results: list[list[dict]] = [None] * len(conversations)
+    start_indices: list[int] = []
+    next_index = 1
+    for turns in conversations:
+        start_indices.append(next_index)
+        next_index += len(turns)
+
     with ThreadPoolExecutor(max_workers=worker_count) as pool:
         futures = {
             pool.submit(
-                run_one,
-                index + 1,
-                question,
+                run_conversation,
+                conv_id + 1,
+                turns,
+                start_indices[conv_id],
                 question_name,
                 timestamp,
                 args.base_url,
                 args.timeout,
-            ): index
-            for index, question in enumerate(questions)
+            ): conv_id
+            for conv_id, turns in enumerate(conversations)
         }
         for completed, future in enumerate(as_completed(futures), start=1):
             results[futures[future]] = future.result()
-            print(f"[{completed}/{len(questions)}] hoàn tất", flush=True)
+            print(f"[{completed}/{len(conversations)}] hoàn tất", flush=True)
+
+    flat_results = [turn for conv_results in results for turn in conv_results]
 
     output_dir.mkdir(parents=True, exist_ok=True)
     with jsonl_path.open("w", encoding="utf-8") as handle:
-        for result in results:
+        for result in flat_results:
             handle.write(json.dumps(result, ensure_ascii=False) + "\n")
 
     with markdown_path.open("w", encoding="utf-8") as handle:
         handle.write(f"# Kết quả kiểm thử: {question_name}\n\n")
         handle.write(f"- Timestamp: `{timestamp}`\n")
-        handle.write(f"- Số câu hỏi: {len(results)}\n\n")
-        for result in results:
-            handle.write(f"## Câu hỏi {result['id']}\n\n")
-            handle.write(f"**Question:** {result['question']}\n\n")
-            handle.write("**Answer:**\n\n")
-            handle.write(f"{result['answer'] or '(Không có câu trả lời)'}\n\n")
-            handle.write(f"- Status: `{result['status']}`\n")
-            handle.write(f"- Latency: `{result['latency_seconds']}` giây\n")
-            if result["error"]:
-                handle.write(f"- Error: `{result['error']}`\n")
-            handle.write("\n---\n\n")
+        handle.write(f"- Số hội thoại: {len(conversations)}\n")
+        handle.write(f"- Tổng số lượt hỏi: {total_turns}\n\n")
+        for conv_results in results:
+            if multi_turn:
+                handle.write(f"## Hội thoại {conv_results[0]['conversation_id']}\n\n")
+            for result in conv_results:
+                heading = f"### Lượt {result['turn_index']}" if multi_turn else f"## Câu hỏi {result['id']}"
+                handle.write(f"{heading}\n\n")
+                handle.write(f"**Question:** {result['question']}\n\n")
+                handle.write("**Answer:**\n\n")
+                handle.write(f"{result['answer'] or '(Không có câu trả lời)'}\n\n")
+                handle.write(f"- Status: `{result['status']}`\n")
+                handle.write(f"- Latency: `{result['latency_seconds']}` giây\n")
+                if result["error"]:
+                    handle.write(f"- Error: `{result['error']}`\n")
+                handle.write("\n")
+            handle.write("---\n\n")
 
     print(f"Đã lưu JSONL: {jsonl_path}")
     print(f"Đã lưu Markdown: {markdown_path}")

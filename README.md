@@ -87,3 +87,29 @@ Sau khi chạy xong, file `.md` trong cùng thư mục sẽ chứa từng cặp:
 
 Nội dung câu trả lời của chatbot.
 ```
+
+## Eval theo flow hội thoại (multi-turn)
+
+Nhiều câu hỏi thực tế phụ thuộc ngữ cảnh của câu trước (vd: "Trạm này ai làm?" chỉ có nghĩa sau khi đã hỏi về một trạm cụ thể). Để test theo kịch bản hội thoại nhiều lượt:
+
+```powershell
+python test_answers.py --mode conversation --input data\conversations.txt
+```
+
+Định dạng input cho mode này: các dòng liên tiếp (không có dòng trống xen giữa) thuộc cùng một hội thoại; dòng trống ngăn cách giữa các hội thoại. Ví dụ `data/conversations.txt`:
+
+```
+Trạm BTS0123 đang ở bước nào?
+Trạm này thuộc hợp đồng nào?
+Trạm này vướng gì?
+
+Khu vực nào đang chậm nhất?
+Hợp đồng nào sắp hết hạn?
+```
+
+Khi chạy:
+
+- Các turn trong **cùng một hội thoại** được gửi **tuần tự**, dùng chung một `session_id` để backend giữ ngữ cảnh.
+- Các **hội thoại khác nhau** chạy **song song** (số luồng theo `--workers`, mỗi luồng xử lý trọn 1 hội thoại).
+- Kết quả JSONL/Markdown có thêm `conversation_id` và `turn_index` để biết câu nào thuộc hội thoại nào, ở lượt thứ mấy.
+- `--limit` ở mode này giới hạn theo **số hội thoại**, không phải số câu hỏi.
